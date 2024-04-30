@@ -10,9 +10,9 @@ class ParentNode(HTMLNode):
             raise ValueError(f"{__class__.__name__} must have a HTML tag.")
         if not self.children:
             raise ValueError("ParentNode must have children nodes.")
-        children_html = "\n"
+        children_html = ""
         for child in self.children:
-            children_html += f"  {child.to_html()}\n"
+            children_html += f"{child.to_html()}"
         html = f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
         return html
     
