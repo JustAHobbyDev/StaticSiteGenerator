@@ -24,6 +24,7 @@ class HTMLNode:
             props_str += f"{prop}=\"{self.props[prop]}\""
         return props_str 
 
-    def __repr__(self):
-        r = f"<{__class__.__name__}:\ntag: {self.tag}\ncontent: {self.content}\nchildren: {self.children}\nprops: {self.props}\n>"
+    def __repr__(self, _self=None):
+        self = _self or self
+        r = f"<{self.__class__.__name__}:\ntag: {self.tag}\ncontent: {self.content}\nchildren: {self.children}\nprops: {self.props}\n>"
         return r
