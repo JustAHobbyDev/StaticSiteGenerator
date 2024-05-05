@@ -27,6 +27,7 @@ def text_node_to_html_node(text_node):
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     final_nodes = []
+    delimiter_jump = len(delimiter)
     for node in old_nodes:
         if node.__class__.__name__ == "TextNode":
             future_textnodes = []
@@ -39,8 +40,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                     content = node.text[i:j]
                     future_textnodes.append({"content": content, "delimited": delimited})
                     delimited = not delimited
-                    i = j + 1
-                    j = i + 1
+                    i = j + delimiter_jump
+                    j = i + delimiter_jump
                 else:
                     if j < len(node.text):
                         j += 1
@@ -84,5 +85,14 @@ print(new_nodes)
 bad_node = TextNode("This is text with a `code block word", "text")
 try:
     new_nodes = split_nodes_delimiter([node, bad_node], "`", "code")
+except Exception as e:
+    print(f"Error: {e}")
+
+
+
+bold = TextNode("This is a **BOLD** statement!", "text")
+try:
+    new_nodes = split_nodes_delimiter([node, bold], "**", "bold")
+    print(new_nodes)
 except Exception as e:
     print(f"Error: {e}")
