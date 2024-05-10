@@ -1,3 +1,4 @@
+import re
 from textnode import TextNode
 from leafnode import LeafNode
 
@@ -65,6 +66,23 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
     return final_nodes
 
+
+def extract_markdown_images(text):
+    matches = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+    return matches
+
+text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
+print(extract_markdown_images(text))
+# [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"), ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
+
+def extract_markdown_links(text):
+    matches = re.findall(r"(?:[^!])\[(.*?)\]\((.*?)\)", text)
+    return matches
+
+    
+text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+print(extract_markdown_links(text))
+# [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
 
 # tn = TextNode("Some random text", "italic", "https://boot.dev")
 
