@@ -1,7 +1,7 @@
 import re
 from textnode import TextNode
 
-
+# TODO: Move into own file
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     final_nodes = []
     delimiter_jump = len(delimiter)
@@ -55,7 +55,7 @@ def extract_markdown_links(text):
     matches = re.findall(r"(?:[^!])\[(.*?)\]\((.*?)\)", text)
     return matches
 
-    
+# TODO: Move into own test file    
 text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
 print(extract_markdown_links(text))
 # [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
