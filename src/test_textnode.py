@@ -30,12 +30,6 @@ class Test_textnode_to_htmlnode(unittest.TestCase):
         tag = text_type["tag"]
         content = text_type["content"]
         want = LeafNode(tag, content)
-        self.assertEqual(want.tag, got.tag)
-        self.assertEqual(want.content, got.content)
-        self.assertEqual(want.children, got.children)
-        self.assertEqual(want.props, got.props)
-        self.assertIsInstance(want, LeafNode)
-        self.assertIsInstance(got, LeafNode)
         self.assertEqual(want, got, f"{want == got}")
 
 if __name__ == "__main__":
