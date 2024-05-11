@@ -32,5 +32,16 @@ class Test_textnode_to_htmlnode(unittest.TestCase):
         want = LeafNode(tag, content)
         self.assertEqual(want, got, f"{want == got}")
 
+    def test_image(self):
+        text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+        node = TextNode(text, "image")
+        got = text_node_to_html_node(node)
+        text_type = text_types[node.text_type]
+        tag = text_type["tag"]
+        content = text_type["content"]
+        props = text_type["props"]
+        want = LeafNode(tag, content, props)
+        self.assertEqual(want, got, f"{want == got}")
+
 if __name__ == "__main__":
     unittest.main()
