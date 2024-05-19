@@ -5,6 +5,7 @@ from inline_markdown import (
     parse_links_and_images,
     scan_until_not_text,
     split_nodes_delimiter,
+    split_nodes_image,
 )
 from inline_markdown import extract_markdown_links
 from textnode import TextNode
@@ -80,19 +81,11 @@ class TestSplitImageNodes(unittest.TestCase):
     def test_parse_links_and_images(self):
         text = "This is text with an [image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)"
         got = parse_links_and_images(text)
-        want = ["This is text with an ", "[image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png)", " and another ", "![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)"]
-        self.assertEqual(want, got)
-
-    def test_parse_links_and_images_just_images(self):
-        text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)"
-        got = parse_links_and_images(text)
-        want = ["This is text with an ", "![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png)", " and another ", "![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)"]
-        self.assertEqual(want, got)
-
-    def test_parse_links_and_images_just_links(self):
-        text = "This is text with an [image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another [second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)"
-        got = parse_links_and_images(text)
-        want = ["This is text with an ", "[image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png)", " and another ", "[second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)"]
+        want = [( "text", "This is text with an " ),
+                ( "url", "[image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png)"),
+                ("text", " and another " ),
+                ("image", "![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)"),
+                ]
         self.assertEqual(want, got)
 
     def test_scan_until_not_text(self):
@@ -141,6 +134,29 @@ class TestSplitImageNodes(unittest.TestCase):
             TextNode(
                 "image",
                 "image",
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
+            ),
+            TextNode(" and another ", "text"),
+            TextNode(
+                "second image",
+                "image",
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png",
+            ),
+        ]
+        self.assertEqual(want, got)
+
+    def test_split_nodes_image_mixed(self):
+        node = TextNode(
+            "This is text with an [image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+            "url",
+        )
+
+        got = split_nodes_image([node])
+        want = [
+            TextNode("This is text with an ", "text"),
+            TextNode(
+                "image",
+                "url",
                 "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
             ),
             TextNode(" and another ", "text"),

@@ -90,6 +90,7 @@ def parse_links_and_images(t):
     i, j, k = 0, 0, 0
     open_square, open_round = False, False
     parsing_text = True
+    is_image = False
     while j < len(t):
         if t[j] == "[":
             if not parsing_text:
@@ -97,6 +98,7 @@ def parse_links_and_images(t):
             parsing_text = False
             open_square = True
             if j - 1 > 0 and t[j - 1] == "!":
+                is_image = True
                 k = j - 1
             else:
                 k = j
@@ -109,12 +111,37 @@ def parse_links_and_images(t):
                 if t[j] == ")":
                     open_round = False
                     parsing_text = True
-                    chunks.append(t[i:k])
-                    chunks.append(t[k:j+1])
+                    text_type = "image" if is_image else "url"
+                    text_chunk = ("text", t[i:k])
+                    image_or_url_chunk = (text_type, t[k:j+1])
+                    chunks.append(text_chunk)
+                    chunks.append(image_or_url_chunk)
                     t = t[j+1:]
                     i = 0
                     j = 0
         j += 1
     if len(t) > 0:
-        chunks.append(t)
+        chunks.append(("text", t))
     return chunks
+
+def split_nodes_image(text_nodes):
+    final_split_nodes = []
+    for text_node in text_nodes:
+        text = text_node.text
+        parsed_nodes = parse_links_and_images(text)
+        for parsed_node in parsed_nodes:
+            text_type, text = parsed_node
+            if text_type == "image":
+                alt = text[2:text.find("]")]
+                url = text[text.find("](")+2:-1]
+                tn = TextNode(alt, text_type, url)
+                final_split_nodes.append(tn)
+            if text_type == "url":
+                a = text[1:text.find("]")]
+                url = text[text.find("](")+2:-1]
+                tn = TextNode(a, text_type, url)
+                final_split_nodes.append(tn)
+            if text_type == "text":
+                tn = TextNode(text, text_type)
+                final_split_nodes.append(tn)
+    return final_split_nodes
