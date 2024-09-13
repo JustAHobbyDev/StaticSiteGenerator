@@ -4,11 +4,27 @@ from inline_markdown import (
     extract_markdown_images,
     parse_links_and_images,
     scan_until_not_text,
+    _snd,
     split_nodes_delimiter,
     split_nodes_image,
+    text_to_textnode,
 )
 from inline_markdown import extract_markdown_links
 from textnode import TextNode
+
+
+class TestSND(unittest.TestCase):
+    def test_snd(self):
+        node = TextNode("This is a **bold** word", "bold")
+        got = _snd([node], "**", "bold")
+        want = [
+            {"text": "This is a ", "pos": (0, 10)},
+            {"text": "**", "pos": (10, 12)},
+            {"text": "bold", "pos": (12, 16)},
+            {"text": "**", "pos": (16, 18)},
+            {"text": " word", "pos": (18, 23)},
+        ]
+        self.assertEqual(want, got)
 
 
 class TestInlineMarkdown(unittest.TestCase):
@@ -45,13 +61,13 @@ class TestInlineMarkdown(unittest.TestCase):
         )
 
     def test_bold(self):
-        bold = TextNode("This is a *BOLD* statement!", "text")
+        bold = TextNode("This is a **BOLD** statement!", "text")
         want = [
             TextNode("This is a ", "text"),
             TextNode("BOLD", "bold"),
             TextNode(" statement!", "text"),
         ]
-        got = split_nodes_delimiter([bold], "*", "bold")
+        got = split_nodes_delimiter([bold], "**", "bold")
         self.assertEqual(want, got)
 
     def test_bold_double(self):
@@ -166,4 +182,23 @@ class TestSplitImageNodes(unittest.TestCase):
                 "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png",
             ),
         ]
+        self.assertEqual(want, got)
+
+class TestTextToTextNodes(unittest.TestCase):
+    def test_text_to_textnode(self):
+        input = "This is **bold text**"
+        # input = "This is **bold text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
+        want = [
+            TextNode("This is ", "text"),
+            TextNode("bold text", "bold"),
+            # TextNode(" with an ", "text"),
+            # TextNode("italic", "italic"),
+            # TextNode(" word and a ", "text"),
+            # TextNode("code block", "code"),
+            # TextNode(" and an ", "text"),
+            # TextNode("image", "image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+            # TextNode(" and a ", "text"),
+            # TextNode("link", "link", "https://boot.dev"),
+        ]
+        got = text_to_textnode(input)
         self.assertEqual(want, got)

@@ -27,7 +27,7 @@ class TextNode:
 
     def __repr__(self):
         """String representation of a TextNode instance"""
-        r = f"{self.__class__.__name__}({self.text}, {self.text_type}, {self.url})"
+        r = f"\n{self.__class__.__name__}:\n\ttext: {self.text},\n\ttext_type: {self.text_type},\n\turl: {self.url}\n"
         return r
 
 
