@@ -1,3 +1,4 @@
+# type: ignore
 import unittest
 
 from textnode import (
@@ -35,7 +36,11 @@ class testTextNodeToHTMLNode(unittest.TestCase):
     def test_text_type(self):
         text_node = TextNode("Some text content", text_type_text)
         html_node = text_node_to_html_node(text_node)
+<<<<<<< HEAD
         self.assertEqual(html_node.tag, None)
+=======
+        self.assertEqual(html_node.tag, None)type: ignore
+>>>>>>> 5d82327 (Ch.2: Nodes - 6: TextNode to HTMLNode)
         self.assertEqual(html_node.content, "Some text content")
 
 
