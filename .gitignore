@@ -2,3 +2,4 @@ __pycache__
 /.venv/
 /devops.org
 /.vscode/
+StaticSiteGenerator.code-workspace
