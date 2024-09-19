@@ -1,5 +1,18 @@
-import copy
+from re import findall
 from textnode import ( TextNode, TextType )
+
+class MarkdownSearchPattern:
+    # images
+    images = r"!\[(.*?)\]\((.*?)\)"
+
+    # regular links
+    links = r"(?<!!)\[(.*?)\]\((.*?)\)"
+
+def extract_markdown_images(text):
+    return findall(MarkdownSearchPattern.images, text)
+
+def extract_markdown_links(text):
+    return findall(MarkdownSearchPattern.links, text)
 
 def split_nodes_delimiter(nodes, delimiter, text_type):
     new_nodes = []

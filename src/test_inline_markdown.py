@@ -1,7 +1,19 @@
 import unittest
-from splitnodes import split_nodes_delimiter 
+from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 from textnode import TextNode
 
+class ExtractMarkdownLinksAndImagesTestCase(unittest.TestCase):
+    def test_extract_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        got = extract_markdown_links(text)
+        want = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        self.assertEqual(want, got)
+
+    def test_extract_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        got = extract_markdown_images(text)
+        want = [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")] 
+        self.assertEqual(want, got)
 
 class SplitNodesDelimiterTestCase(unittest.TestCase):
     def test_single_text_node(self):
