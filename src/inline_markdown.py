@@ -8,6 +8,53 @@ class MarkdownSearchPattern:
     # regular links
     links = r"(?<!!)\[(.*?)\]\((.*?)\)"
 
+def split_nodes_link(nodes):
+    return split_nodes_by(nodes, extract_markdown_links, create_markdown_link, TextType.link)
+
+def split_nodes_image(nodes):
+    return split_nodes_by(nodes, extract_markdown_images, create_markdown_image, TextType.image)
+
+def split_nodes_by(nodes, extract_inject, split_target_inject, text_type_inject):
+    new_nodes = []
+    for node in nodes:
+        if node.text_type is not TextType.text:
+            new_nodes.append(node)
+            continue
+
+        links = extract_inject(node.text)
+        assert(len(links) > 0)
+        try:
+            assert(False)
+        except Exception:
+             Exception(f"links: {links}")
+
+        if not links:
+            assert("shouldn't run" == 0)
+            new_nodes.append(node)
+            continue
+        
+        node_text = node.text
+        for link in links:
+            text, url = link
+            parts = node_text.split(split_target_inject(text, url), 1)
+            if parts[0]:
+                tnode = TextNode(parts[0], TextType.text)
+                new_nodes.append(tnode)
+
+            if len(parts) > 1:
+                lnode = TextNode(text, text_type_inject, url)
+                new_nodes.append(lnode)
+            
+                node_text = parts[1]
+
+    return new_nodes
+
+def create_markdown_link(text, url):
+    return f"[{text}]({url})"
+
+def create_markdown_image(text, url):
+    return f"![{text}]({url})"
+     
 def extract_markdown_images(text):
     return findall(MarkdownSearchPattern.images, text)
 

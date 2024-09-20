@@ -1,6 +1,52 @@
 import unittest
-from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
-from textnode import TextNode
+from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image
+from textnode import TextNode, TextType
+
+class SplitNodesLinksAndImagesTestCase(unittest.TestCase):
+    def test_split_nodes_only_link(self):
+        node = TextNode(
+            "[to boot dev](https://www.boot.dev)",
+            TextType.text,
+        )
+        got = split_nodes_link([node])
+        want = [
+            TextNode("to boot dev", TextType.link, "https://www.boot.dev"),
+        ]
+        self.assertEqual(want, got)
+
+    def test_split_nodes_link(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.text,
+        )
+        got = split_nodes_link([node])
+        self.assertEqual(4, len(got))
+        want = [
+            TextNode("This is text with a link ", TextType.text),
+            TextNode("to boot dev", TextType.link, "https://www.boot.dev"),
+            TextNode(" and ", TextType.text),
+            TextNode(
+                "to youtube", TextType.link, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+        self.assertEqual(want, got)
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.text,
+        )
+        got = split_nodes_image([node])
+        want = [
+            TextNode("This is text with a link ", TextType.text),
+            TextNode("to boot dev", TextType.image, "https://www.boot.dev"),
+            TextNode(" and ", TextType.text),
+            TextNode(
+                "to youtube", TextType.image, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+        self.assertEqual(want, got)
+
 
 class ExtractMarkdownLinksAndImagesTestCase(unittest.TestCase):
     def test_extract_links(self):
