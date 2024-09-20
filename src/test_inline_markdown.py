@@ -1,7 +1,26 @@
 import unittest
-from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image
+from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes
 from textnode import TextNode, TextType
 
+class TextToTextNodesTestCase(unittest.TestCase):
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        want = [
+            TextNode("This is ", TextType.text),
+            TextNode("text", TextType.bold),
+            TextNode(" with an ", TextType.text),
+            TextNode("italic", TextType.italic),
+            TextNode(" word and a ", TextType.text),
+            TextNode("code block", TextType.code),
+            TextNode(" and an ", TextType.text),
+            TextNode("obi wan image", TextType.image, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.text),
+            TextNode("link", TextType.link, "https://boot.dev"),
+        ]
+        got = text_to_textnodes(text)
+        self.assertEqual(want, got)
+        
+        
 class SplitNodesLinksAndImagesTestCase(unittest.TestCase):
     def test_split_nodes_only_link(self):
         node = TextNode(
@@ -47,6 +66,23 @@ class SplitNodesLinksAndImagesTestCase(unittest.TestCase):
         ]
         self.assertEqual(want, got)
 
+    def test_split_nodes_image_trailing_text(self):
+        node = TextNode(
+            "This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev) trailing text.",
+            TextType.text,
+        )
+        got = split_nodes_image([node])
+        want = [
+            TextNode("This is text with a link ", TextType.text),
+            TextNode("to boot dev", TextType.image, "https://www.boot.dev"),
+            TextNode(" and ", TextType.text),
+            TextNode(
+                "to youtube", TextType.image, "https://www.youtube.com/@bootdotdev"
+            ),
+            TextNode(" trailing text.", TextType.text)
+        ]
+        self.assertEqual(want, got)
+
 
 class ExtractMarkdownLinksAndImagesTestCase(unittest.TestCase):
     def test_extract_links(self):
@@ -62,6 +98,17 @@ class ExtractMarkdownLinksAndImagesTestCase(unittest.TestCase):
         self.assertEqual(want, got)
 
 class SplitNodesDelimiterTestCase(unittest.TestCase):
+    def test_code_text_node(self):
+        text_node = TextNode("Here is some `example code` for you to study", TextType.text)
+        got = split_nodes_delimiter([text_node], "`", "code")
+        want = [
+            TextNode("Here is some ", "text"),
+            TextNode("example code", "code"),
+            TextNode(" for you to study", "text"),
+        ]
+        self.assertEqual(want, got)
+
+
     def test_single_text_node(self):
         text_node = TextNode("A plain old text type textnode", "text")
         got = split_nodes_delimiter([text_node], "*", "bold")

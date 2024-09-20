@@ -8,11 +8,14 @@ class MarkdownSearchPattern:
     # regular links
     links = r"(?<!!)\[(.*?)\]\((.*?)\)"
 
-def split_nodes_link(nodes):
-    return split_nodes_by(nodes, extract_markdown_links, create_markdown_link, TextType.link)
-
-def split_nodes_image(nodes):
-    return split_nodes_by(nodes, extract_markdown_images, create_markdown_image, TextType.image)
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.text)]
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    nodes = split_nodes_delimiter(nodes, "`", "code")
+    nodes = split_nodes_delimiter(nodes, "**", "bold")
+    nodes = split_nodes_delimiter(nodes, "*", "italic")
+    return nodes
 
 def split_nodes_by(nodes, extract_inject, split_target_inject, text_type_inject):
     new_nodes = []
@@ -22,14 +25,7 @@ def split_nodes_by(nodes, extract_inject, split_target_inject, text_type_inject)
             continue
 
         links = extract_inject(node.text)
-        assert(len(links) > 0)
-        try:
-            assert(False)
-        except Exception:
-             Exception(f"links: {links}")
-
         if not links:
-            assert("shouldn't run" == 0)
             new_nodes.append(node)
             continue
         
@@ -46,8 +42,19 @@ def split_nodes_by(nodes, extract_inject, split_target_inject, text_type_inject)
                 new_nodes.append(lnode)
             
                 node_text = parts[1]
+        else:
+            if node_text:
+                tnode = TextNode(node_text, TextType.text)
+                new_nodes.append(tnode)
+                
 
     return new_nodes
+
+def split_nodes_link(nodes):
+    return split_nodes_by(nodes, extract_markdown_links, create_markdown_link, TextType.link)
+
+def split_nodes_image(nodes):
+    return split_nodes_by(nodes, extract_markdown_images, create_markdown_image, TextType.image)
 
 def create_markdown_link(text, url):
     return f"[{text}]({url})"
