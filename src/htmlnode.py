@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class HTMLNode:
     def __init__(self, 
                  tag = None, 
