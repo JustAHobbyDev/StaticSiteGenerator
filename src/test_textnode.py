@@ -71,6 +71,14 @@ class testTextNodeToHTMLNode(unittest.TestCase):
         self.assertEqual(html_node.content, "")
         self.assertEqual(html_node.props, {"alt": "Some text content", "src": "https://boot.dev/logo.jpg"})
 
+    # TODO: More unit tests!!!
+    # def test_mixed(self):
+    #     tn = [
+    #         TextNode("I like Tolkien", TextType.bold),
+    #         TextNode(". Read my ", TextType.text),
+    #         TextNode("first post here", TextType.link, "/majesty"),
+    #         TextNode(" (sorry the link doesn't work yet)", TextType.text),
+    #     ]
 
 if __name__ == "__main__":
     unittest.main()

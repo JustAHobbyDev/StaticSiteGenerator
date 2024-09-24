@@ -98,6 +98,7 @@ class ExtractMarkdownLinksAndImagesTestCase(unittest.TestCase):
         self.assertEqual(want, got)
 
 class SplitNodesDelimiterTestCase(unittest.TestCase):
+
     def test_code_text_node(self):
         text_node = TextNode("Here is some `example code` for you to study", TextType.text)
         got = split_nodes_delimiter([text_node], "`", "code")
@@ -156,6 +157,20 @@ class SplitNodesDelimiterTestCase(unittest.TestCase):
     def test_markdown_error(self):
         text_node = TextNode("here is a *markdown error", "text")
         self.assertRaises(SyntaxError, split_nodes_delimiter, [text_node], "*", "italic")
+
+        
+class DebugTestCase(unittest.TestCase):
+    def test_debug_00(self):
+        md = "**I like Tolkien**. Read my [first post here](/majesty) (sorry the link doesn't work yet)"
+        want = [
+            TextNode("I like Tolkien", TextType.bold),
+            TextNode(". Read my ", TextType.text),
+            TextNode("first post here", TextType.link, "/majesty"),
+            TextNode(" (sorry the link doesn't work yet)", TextType.text),
+        ]
+        got = text_to_textnodes(md)
+        self.assertEqual(want, got)
+
     
 if __name__ == '__main__':
     unittest.main()

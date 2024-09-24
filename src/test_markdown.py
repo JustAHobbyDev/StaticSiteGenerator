@@ -1,5 +1,5 @@
 import unittest
-from markdown import block_to_block_type, markdown_to_blocks, markdown_to_html_node
+from markdown import extract_title, block_to_block_type, markdown_to_blocks, markdown_to_html_node
 from htmlnode import HTMLNode
 
 
@@ -58,6 +58,13 @@ class BlockMarkdownTestCase(unittest.TestCase):
     def setUp(self):
         self.blocks = ['# This is a heading', 'This is a paragraph of text. It has some **bold** and *italic* words inside of it.', '* This is the first list item in a list block\n* This is a list item\n* This is another list item']
         
+    def test_extract_title(self):
+        markdown = "# This is a heading\n\nThis is a paragraph of text. It has some **bold** and *italic* words inside of it.\n\n* This is the first list item in a list block\n* This is a list item\n* This is another list item\n"
+        got = extract_title(markdown)
+        want = 'This is a heading'
+        self.assertEqual(want, got)
+
+
     def test_markdown_to_blocks(self):
         markdown = "# This is a heading\n\nThis is a paragraph of text. It has some **bold** and *italic* words inside of it.\n\n* This is the first list item in a list block\n* This is a list item\n* This is another list item\n"
         want = self.blocks

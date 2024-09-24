@@ -1,6 +1,19 @@
 import re
+from textnode import text_node_to_html_node
 from htmlnode import HTMLNode
+from inline_markdown import text_to_textnodes
 
+
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        if block_type == 'header':
+            header_level = count_header_level(block)
+            if header_level == 1:
+                return block.strip('# ')
+
+    raise SyntaxError("No title found")
 
 def markdown_to_html_node(markdown):
     nodes = []
@@ -12,7 +25,7 @@ def markdown_to_html_node(markdown):
             node = HTMLNode(f"h{header_level}", block[header_level+1:])
             nodes.append(node)
         if block_type == 'code':
-            content = block.strip('```')
+            content = block.strip('```\n')
             code = HTMLNode('code', content)
             pre = HTMLNode('pre', '', [code])
             nodes.append(pre)
@@ -22,30 +35,43 @@ def markdown_to_html_node(markdown):
             for part in parts:
                 if part:
                     content += part
-            p = HTMLNode("p", block)
-            quote = HTMLNode("quote", "", [p])
+            quote = HTMLNode("blockquote", f'{block.lstrip("> ")}', [])
             nodes.append(quote)
         if block_type == 'unordered_list':
             ul_children = []
-            items = block.split('*')
+            items = re.split(r'^\* *|\n\* *', block)
             for item in items:
                if item:
-                   li = HTMLNode("li", item.strip())
-                   ul_children.append(li) 
+                    li_text_nodes = text_to_textnodes(item)
+                    li_children = []
+                    for ltn in li_text_nodes:
+                        tn = text_node_to_html_node(ltn)
+                        li_children.append(tn)
+                    li_node = HTMLNode('li', '', li_children)
+                    ul_children.append(li_node)
             ul = HTMLNode("ul", '', ul_children)
             nodes.append(ul)
-        # TODO ordered_list
         if block_type == 'ordered_list':
             ol_children = []
             items = re.split(r'\d+\.', block)
             for item in items:
                if item:
-                   li = HTMLNode("li", item.strip())
-                   ol_children.append(li) 
+                    li_text_nodes = text_to_textnodes(item.strip())
+                    li_children = []
+                    for ltn in li_text_nodes:
+                        tn = text_node_to_html_node(ltn)
+                        li_children.append(tn)
+                    li_node = HTMLNode('li', '', li_children)
+                    ol_children.append(li_node)
             ol = HTMLNode("ol", '', ol_children)
             nodes.append(ol)
         if block and block_type == 'paragraph':
-            p = HTMLNode("p", block)
+            tns = text_to_textnodes(block)
+            p_children = []
+            for tn in tns:
+                hn = text_node_to_html_node(tn)
+                p_children.append(hn)
+            p = HTMLNode("p", '', p_children)
             nodes.append(p)
     html = HTMLNode("div", '', nodes)
     return html
