@@ -2,6 +2,33 @@ import os
 from pathlib import Path
 from markdown import markdown_to_html_node, extract_title
 
+
+def del_dir_children(path):
+    path = Path(path)
+    for fd in path.iterdir():
+        if fd.is_file():
+            fd.unlink()
+    
+    for _dir in path.iterdir():
+        if _dir.iterdir():
+            del_dir_children(_dir)
+        _dir.rmdir()
+        
+
+def generate_page_recursive(from_path, template_path, dest_path):
+    from_entries = Path().glob(f'{from_path}/**/*')
+    for from_entry in from_entries:
+        str_from_entry = str(from_entry)
+        str_dest_entry = str_from_entry.replace(from_path, dest_path)
+        str_dest_entry = str_dest_entry.replace('.md', '.html')
+        dest_entry = Path(str_dest_entry)
+        if from_entry.is_dir():
+            dest_entry.mkdir
+        if from_entry.is_file():
+            generate_page(from_entry, template_path, dest_entry)
+
+
+
 def generate_page(from_path, template_path, dest_path):
     print(f'Generating page from {from_path} to {dest_path} using {template_path}')
 
@@ -35,9 +62,6 @@ def generate_page(from_path, template_path, dest_path):
         print(f'dest_path.parent: {dest_path.parent}')
         print(f'Making {dest_path.parent}...')
         dest_path.parent.mkdir()
-    # remove old generated file
-    print(f'Cleaning {dest_path}...')
-    dest_path.unlink(missing_ok=True)
     # Write the html page to a file at `dest_path`
     print(f'Opening {dest_path}...')
     with open(dest_path, 'w', encoding="utf-8") as dest_file:
@@ -47,5 +71,8 @@ def generate_page(from_path, template_path, dest_path):
     print("All done!")
 
     
-# if __name__ == '__main__':
-#     generate_page(from)
+if __name__ == '__main__':
+#  generate_page(from)
+    # d = generate_pages_recursive('content')
+    # del_dir_children('public')
+    generate_page_recursive('content', 'template.html', 'public')

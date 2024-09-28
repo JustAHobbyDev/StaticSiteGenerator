@@ -1,20 +1,15 @@
 from pathlib import Path
-from generator import generate_page
+from generator import del_dir_children, generate_page_recursive
 import shutil
 
+class Config:
+    template_path = 'template.html'
+
 def build(source, target):
-    root = Path('.')
-    src_dir = root / source
-    target = root / target
-    shutil.rmtree(target)
-    target.mkdir()
-    recursive_copy(src_dir, target)
-    from_path = root / 'content/index.md'
-    template_path = root / 'template.html'
-    dest_path = target / 'index.html'
-    generate_page(from_path, template_path, dest_path)
+    generate_page_recursive(source, Config.template_path, target)
 
 def recursive_copy(source, target):
+    source, target = Path(source), Path(target)
     for child in source.iterdir():
         target_child = target / child.name
         if child.is_dir():
@@ -30,4 +25,6 @@ def recursive_copy(source, target):
 
 
 if __name__ == '__main__':
-    build('static', 'public')
+    del_dir_children('public')
+    build('content', 'public')
+    recursive_copy('static', 'public')
