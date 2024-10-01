@@ -1,8 +1,22 @@
 import unittest
 from markdown import extract_title, block_to_block_type, markdown_to_blocks, markdown_to_html_node
 from htmlnode import HTMLNode
+from textnode import TextNode
+from leafnode import LeafNode
 
 
+class DebugMarkdownTestCase(unittest.TestCase):
+    def test_bold_in_title(self):
+        md = "## The Art of **World-Building**"
+        html_nodes = HTMLNode('h1', '', [
+            LeafNode(None, ' The Art of '),
+            LeafNode('bold', 'World-Building'),
+        ])
+        blocks = markdown_to_blocks(md)
+        got = markdown_to_html_node(md)
+        self.assertEqual(html_nodes, got) 
+
+    
 class MarkdownToHTMLTestCase(unittest.TestCase):
     def test_markdown_to_html_node_body(self):
         markdown = ""

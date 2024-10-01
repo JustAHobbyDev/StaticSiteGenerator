@@ -171,6 +171,15 @@ class DebugTestCase(unittest.TestCase):
         got = text_to_textnodes(md)
         self.assertEqual(want, got)
 
+    def test_debug_bullet_lists(self):
+        md = "* The first item has a **bold** word."
+        want = [
+            TextNode("* The first item has a ", TextType.text),
+            TextNode("bold", TextType.bold),
+            TextNode(" word.", TextType.text),
+        ]
+        got = text_to_textnodes(md)
+        self.assertEqual(want, got)
     
 if __name__ == '__main__':
     unittest.main()

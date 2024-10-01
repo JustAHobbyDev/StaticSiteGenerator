@@ -23,7 +23,11 @@ class HTMLNode:
         children_html = ''
         if self.children:
             for child in self.children:
-                children_html += child.to_html()
+                try:
+                    children_html += child.to_html()
+                except AttributeError as e:
+                    print(f'child: {child}')
+                    raise e
 
         html_preformat = '<{tag}{props_html}>{content}{children_html}</{tag}>'
         return html_preformat.format_map({

@@ -48,7 +48,9 @@ def generate_page(from_path, template_path, dest_path):
         template_file = f.read()
         
     html_nodes = markdown_to_html_node(markdown)
+    # print(f'\nhtml_nodes: [{html_nodes}]\n')
     html = html_nodes.to_html()
+
     title = extract_title(markdown)
     title_template_parts = template_file.split('{{ Title }}')
     template_with_title = title_template_parts[0] + title + title_template_parts[1]

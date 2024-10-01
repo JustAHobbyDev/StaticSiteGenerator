@@ -75,14 +75,29 @@ def split_nodes_delimiter(nodes, delimiter, text_type):
             new_nodes.append(node)
             continue
         
-        node_text = node.text
+        bullet = ''
+        node_text = ''
         node_url = node.url
+        if node.text.startswith("* ") or node.text.startswith("- "):
+            bullet = node.text[:2]
+            node_text = node.text[2:]
+        else:
+            node_text = node.text
+
         tokens = node_text.split(delimiter)
 
         if len(tokens) % 2 == 0:
-            raise SyntaxError("Invalid markdown syntax")
+            msg = f"""
+                node_text: {node_text}
+                tokens: {tokens}
+                length: {len(tokens)}
+            """
+            raise SyntaxError(msg.strip())
 
         for i, token in enumerate(tokens):
+            if bullet and i == 0:
+               token = bullet + token 
+
             new_node = None
             if (i % 2) == 1:
                 new_node = TextNode(token, text_type, node_url)

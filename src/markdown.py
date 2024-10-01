@@ -1,5 +1,5 @@
 import re
-from textnode import text_node_to_html_node
+from textnode import TextNode, text_node_to_html_node
 from htmlnode import HTMLNode
 from inline_markdown import text_to_textnodes
 
@@ -21,27 +21,44 @@ def markdown_to_html_node(markdown):
     for block in blocks:
         block_type = block_to_block_type(block)
         if block_type == 'header':
-            header_level = count_header_level(block)
-            node = HTMLNode(f"h{header_level}", block[header_level+1:])
+            text_nodes = text_to_textnodes(block)
+            header_text = text_nodes[0].text
+            header_level = count_header_level(text_nodes[0].text)
+            text_nodes[0].text = header_text[header_level+1:] 
+            # TODO: text_nodes_to_html_nodes
+            html_nodes = []
+            for text_node in text_nodes:
+                html_nodes.append(text_node_to_html_node(text_node))
+            node = HTMLNode(f"h{header_level}", '', html_nodes)
             nodes.append(node)
         if block_type == 'code':
-            content = block.strip('```\n')
-            code = HTMLNode('code', content)
+            content = block[3:-3].strip()
+            text_node = TextNode(content, 'code')
+            code = text_node_to_html_node(text_node)
             pre = HTMLNode('pre', '', [code])
             nodes.append(pre)
         if block_type == 'quote':
-            parts = re.split(r'^>|\n>', block)
+            parts = re.split(r'^[\>] *|\n[\>] *', block)
+            print(f'parts: {parts}')
             content = ""
             for part in parts:
                 if part:
                     content += part
-            quote = HTMLNode("blockquote", f'{block.lstrip("> ")}', [])
+            text_nodes = text_to_textnodes(content)
+            print(f'---\ntext_nodes: {text_nodes}\n---')
+            html_nodes = []
+            for text_node in text_nodes:
+                html_nodes.append(text_node_to_html_node(text_node))
+            print(f'---\nhtml_nodes: {html_nodes}\n---')
+            # p = HTMLNode("p", '', html_nodes)
+            quote = HTMLNode("blockquote", '', html_nodes)
             nodes.append(quote)
         if block_type == 'unordered_list':
             ul_children = []
-            items = re.split(r'^\* *|\n\* *', block)
+            items = re.split(r'^[\*\-] *|\n[\*\-] *', block)
             for item in items:
                if item:
+                    print(f'item: {item}')
                     li_text_nodes = text_to_textnodes(item)
                     li_children = []
                     for ltn in li_text_nodes:
